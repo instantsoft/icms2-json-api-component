@@ -15,5 +15,6 @@ CREATE TABLE `{#}api_logs` (
   `method` varchar(100) DEFAULT NULL,
   `error` tinyint(1) unsigned DEFAULT NULL,
   `date_pub` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `request_time` float unsigned DEFAULT NULL,
   KEY `key_id` (`key_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

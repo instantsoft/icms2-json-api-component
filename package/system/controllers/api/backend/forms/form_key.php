@@ -42,7 +42,7 @@ class formApiKey extends cmsForm {
                         )
                     )),
 
-                    new fieldText('allow_ips', array(
+                    new fieldText('ip_access', array(
                         'title' => LANG_API_ALLOW_IPS,
                         'hint'  => LANG_CP_SETTINGS_ALLOW_IPS_HINT
                     ))

@@ -24,6 +24,16 @@ class api extends cmsFrontend {
     }
 
     /**
+     * Результат запроса
+     * @param array $api_request_result
+     */
+    public function setSuccess($api_request_result) {
+        $this->output_success = array(
+            'response' => $api_request_result
+        );
+    }
+
+    /**
      * Устанавливает ошибку запроса
      * @param integer $error_code
      * @param string $error_msg
@@ -32,7 +42,7 @@ class api extends cmsFrontend {
 
         if($error_msg){
             $this->output_error['error'] = array(
-                'error_code' => 0,
+                'error_code' => ($error_code ? $error_code : 0),
                 'error_msg'  => $error_msg
             );
         } else {
