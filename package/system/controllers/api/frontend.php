@@ -84,6 +84,11 @@ class api extends cmsFrontend {
         }
 
         $response = array();
+        $max_method_count = 10;
+
+        if(count($methods) > $max_method_count){
+            return $this->error(13);
+        }
 
         foreach ($methods as $method_param) {
 
