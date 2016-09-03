@@ -175,7 +175,7 @@ class actionApiMethod extends cmsAction {
 
     /**
      * Действия после успешного запроса
-     * @return \actionApiMethod
+     * @return boolean
      */
     private function afterRequest() {
 

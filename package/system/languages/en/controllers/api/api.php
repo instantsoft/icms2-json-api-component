@@ -13,6 +13,8 @@ define('LANG_API_KEY_DELETE', 'Access key successfully removed');
 define('LANG_API_KEY_IS_PUB', 'Access key is enable');
 define('LANG_API_KEY_UPDATE', 'Access Key has been changed. Do not forget to change it in your application.');
 define('LANG_API_DELETE_CONFIRM', 'Delete this access key?\nApplications that use it, can not work.');
+define('LANG_API_STAT_ERRORS', 'Request errors');
+define('LANG_API_STAT_OK', 'Success requests');
 
 define('LANG_API_EMPTY_CTYPE', 'Content type not set');
 

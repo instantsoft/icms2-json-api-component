@@ -13,6 +13,8 @@ define('LANG_API_KEY_DELETE', 'Ключ доступа успешно удалё
 define('LANG_API_KEY_IS_PUB', 'Ключ доступа включен');
 define('LANG_API_KEY_UPDATE', 'Ключ доступа был изменен. Не забудьте его поменять в вашем приложении.');
 define('LANG_API_DELETE_CONFIRM', 'Удалить этот ключ доступа?\nПриложения, использующие его, не смогут работать.');
+define('LANG_API_STAT_ERRORS', 'Ошибки запросов');
+define('LANG_API_STAT_OK', 'Успешные запросы');
 
 define('LANG_API_EMPTY_CTYPE', 'Не задан тип контента');
 
