@@ -23,20 +23,11 @@ class actionApiMethod extends cmsAction {
 
         parent::__construct($controller, $params);
 
-        $headers = apache_request_headers();
+        $this->loadApiKey();
 
-        $api_key = !empty($headers['api_key']) ? $headers['api_key'] : $this->request->get('api_key', '');
+        // для метода after ставим коллбэк, нам не нужен вывод на экран шаблона
+        $this->setCallback('after', array(array($controller, 'renderJSON')));
 
-        $this->key = $this->model->getKey($api_key);
-
-    }
-
-    /**
-     * Нам не нужен вывод на экран шаблона
-     * @return exit
-     */
-    public function __destruct() {
-        return $this->cms_template->renderJSON($this->getOutputdata(), true);
     }
 
     /**
@@ -80,7 +71,7 @@ class actionApiMethod extends cmsAction {
             }
 
             if($this->method_action_name && $this->method_controller !== null){
-                $this->method_controller->current_action = 'api_request_'.$this->method_action_name;
+                $this->method_controller->current_action = 'api_'.$this->method_controller_name.'_'.$this->method_action_name;
             }
 
         }
@@ -103,12 +94,17 @@ class actionApiMethod extends cmsAction {
     public function run($method_name = null){
 
         // устанавливаем метод и проверяем запрос
-        $this->initMethod($method_name)->checkRequest();
+        if(!$this->initMethod($method_name)->checkRequest()){
+            return false;
+        }
 
         // проверяем сначала экшен
         // Важно! Болокируйте экшен от прямого выполнения свойством lock_explicit_call
         // http://docs.instantcms.ru/dev/controllers/actions#действия-во-внешних-файлах
-        $action_file = $this->method_controller->root_path . 'actions/'.$this->method_controller->current_action.'.php';
+
+        $api_dir_action_file = $this->root_path.'api_actions/'.$this->method_controller->current_action.'.php';
+        $action_file = $this->method_controller->root_path.'actions/'.$this->method_controller->current_action.'.php';
+        $action_file = is_readable($api_dir_action_file) ? $api_dir_action_file : $action_file;
 
         if(is_readable($action_file)){
 
@@ -139,24 +135,41 @@ class actionApiMethod extends cmsAction {
 
         // нечего запускать
         if($this->method_action === null){
-            $this->error(3);
+            return $this->error(3);
+        }
+
+        // ставим свойство результирующего массива, если такового нет
+        if(!isset($this->method_action->result)){
+            $this->method_action->result = array(
+                'count' => 0,
+                'items' => array()
+            );
+        }
+
+        // валидация параметров запроса
+        $params_error = $this->validateMethodParams();
+        if($params_error !== false){
+            return $this->error(100, '', $params_error);
         }
 
         // валидация запроса, если нужна
         if(method_exists($this->method_action, 'validateApiRequest')){
             $error = call_user_func_array(array($this->method_action, 'validateApiRequest'), $this->method_params);
             if($error !== false){
-                $this->error(100, $error['error_msg']);
+                return $this->error(100, $error['error_msg']);
             }
         }
 
         // сам запрос
-        // экшен/хук должен отдавать строго массив данных
+        // экшен/хук формирует данные в свойство $this->method_action->result
         // вся обработка ошибок на этом этапе должна быть закончена
-        $this->setSuccess(call_user_func_array(array($this->method_action, 'run'), $this->method_params));
+        call_user_func_array(array($this->method_action, 'run'), $this->method_params);
+
+        // фиксируем результат запроса
+        $this->setSuccess($this->method_action->result);
 
         // действия после успешного запроса
-        $this->afterRequest();
+        return $this->afterRequest();
 
     }
 
@@ -175,64 +188,83 @@ class actionApiMethod extends cmsAction {
             ));
         }
 
-        return $this;
+        return true;
+
+    }
+
+    private function validateMethodParams() {
+
+        if(empty($this->method_action->request_params)){
+            return false;
+        }
+
+        $errors = array();
+
+        // фалидация аналогична валидации форм
+        foreach ($this->method_action->request_params as $param_name => $rules) {
+
+            $value = $this->request->get($param_name, null);
+
+            if (is_null($value) && isset($rules['default'])) {
+
+                $value = $rules['default'];
+
+                $this->request->set($param_name, $value);
+
+            }
+
+            foreach ($rules['rules'] as $rule) {
+
+                if (!$rule) { continue; }
+
+                $validate_function = "validate_{$rule[0]}";
+
+                $rule[] = $value;
+
+                unset($rule[0]);
+
+                $result = call_user_func_array(array($this, $validate_function), $rule);
+
+                // если получилось false, то дальше не проверяем, т.к.
+                // ошибка уже найдена
+                if ($result !== true) {
+                    $errors[$param_name] = $result;
+                    break;
+                }
+
+            }
+        }
+
+        if (!sizeof($errors)) { return false; }
+
+        return $errors;
 
     }
 
     /**
      * Проверяет запрос на ошибки
-     * Если находит - завершает работу
-     * @return \actionApiMethod
+     * @return boolean
      */
-    private function checkRequest() {
+    public function checkRequest() {
 
-        if(empty($this->key)){
-            $this->error(101);
-        }
-
-        if($this->key['ip_access'] && !string_in_mask_list(cmsUser::getIp(), $this->key['ip_access'])){
-            $this->error(15);
-        }
-
-        if(!$this->key['is_pub']){
-            $this->error(2);
-        }
+        $parent_succes = parent::checkRequest();
+        if(!$parent_succes){ return false; }
 
         if(empty($this->method_name) ||
                 empty($this->method_controller_name) ||
-                $this->method_controller === null ||
-                empty($this->method_action_name)){
-            $this->error(3);
+                $this->method_controller === null){
+            return $this->error(3);
+        }
+
+        if(empty($this->method_action_name)){
+            return $this->error(8);
         }
 
         if(!$this->method_controller->isEnabled()){
-            $this->error(23);
+            return $this->error(23);
         }
 
-        return $this;
-
-    }
-
-    /**
-     * Фиксирует, выводит ошибку запроса и завершает работу
-     * @param integer $error_code
-     * @param string $error_msg
-     */
-    private function error($error_code, $error_msg = '') {
-
-        // записываем в лог ошибку, если включена их фиксация
-        if(!empty($this->options['log_error'])){
-            $this->model->log(array(
-                'request_time' => number_format(cmsCore::getTime(), 4),
-                'error'  => $error_code,
-                'method' => $this->method_name,
-                'key_id' => (!empty($this->key['id']) ? $this->key['id'] : null)
-            ));
-        }
-
-        $this->setError($error_code, $error_msg);
-
-        die;
+        return true;
 
     }
 

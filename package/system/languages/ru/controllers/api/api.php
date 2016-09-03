@@ -14,6 +14,8 @@ define('LANG_API_KEY_IS_PUB', 'Ключ доступа включен');
 define('LANG_API_KEY_UPDATE', 'Ключ доступа был изменен. Не забудьте его поменять в вашем приложении.');
 define('LANG_API_DELETE_CONFIRM', 'Удалить этот ключ доступа?\nПриложения, использующие его, не смогут работать.');
 
+define('LANG_API_EMPTY_CTYPE', 'Не задан тип контента');
+
 define('LANG_API_ERROR1', 'Произошла неизвестная ошибка');
 define('LANG_API_ERROR3', 'Передан неизвестный метод');
 define('LANG_API_ERROR101', 'Неверный ключ доступа');
@@ -21,3 +23,6 @@ define('LANG_API_ERROR2', 'Ключ доступа выключен');
 define('LANG_API_ERROR23', 'Метод был выключен');
 define('LANG_API_ERROR15', 'Доступ запрещён');
 define('LANG_API_ERROR100', 'Один из необходимых параметров был не передан или неверен');
+define('LANG_API_ERROR8', 'Неверный запрос');
+define('LANG_API_ERROR12', 'Невозможно скомпилировать код');
+define('LANG_API_ERROR13', 'Ошибка выполнения кода');
