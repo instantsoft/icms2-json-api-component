@@ -165,6 +165,29 @@ class actionApiMethod extends cmsAction {
         // вся обработка ошибок на этом этапе должна быть закончена
         call_user_func_array(array($this->method_action, 'run'), $this->method_params);
 
+        // если нужно убрать ячейки
+        if(isset($this->method_action->unset_fields)){
+            foreach ($this->method_action->unset_fields as $key_name => $unset) {
+
+                if($unset['type'] == 'item'){
+
+                    foreach ($unset['unsets'] as $unset_field) {
+                        unset($this->method_action->result[$key_name][$unset_field]);
+                    }
+
+                } else {
+
+                    foreach ($this->method_action->result[$key_name] as $key => $item) {
+                        foreach ($unset['unsets'] as $unset_field) {
+                            unset($this->method_action->result[$key_name][$key][$unset_field]);
+                        }
+                    }
+
+                }
+
+            }
+        }
+
         // фиксируем результат запроса
         $this->setSuccess($this->method_action->result);
 
