@@ -1,3 +1,18 @@
 # InstantCMS JSON API
 
-This component is for InstantCMS/Mobile app developers who want to use InstantCMS as mobile app data backend.
+Компонент для InstantCMS. Реализует легкое API между сайтом и сторонним сервисом, например, мобильным приложением.
+
+## Основные преимущества и функциональность
+
+* Бесплатный (GNU/GPL v2);
+* Удобная обработка ошибок;
+* Логирование запросов;
+* Автоматическая валидация входных данных;
+* Одна точка входа для всех методов API;
+* Поддержка универсального запроса, в котором можно запросить несколько методов API;
+* Стиль API Вконтакте для лёгкого внедрения и понимания.
+
+## Ссылки
+
+* [Официальный сайт InstantCMS](http://www.instantcms.ru/)
+* [Документация компонента](http://docs.instantcms.ru/manual/components/api)
