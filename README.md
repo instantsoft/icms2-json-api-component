@@ -16,3 +16,4 @@
 
 * [Официальный сайт InstantCMS](http://www.instantcms.ru/)
 * [Документация компонента](http://docs.instantcms.ru/manual/components/api)
+* [English README](https://github.com/instantsoft/icms2-json-api-component/blob/master/README.en.md)
