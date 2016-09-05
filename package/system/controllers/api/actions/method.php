@@ -156,7 +156,8 @@ class actionApiMethod extends cmsAction {
         if(method_exists($this->method_action, 'validateApiRequest')){
             $error = call_user_func_array(array($this->method_action, 'validateApiRequest'), $this->method_params);
             if($error !== false){
-                return $this->error(100, $error['error_msg']);
+                return $this->error((isset($error['error_code']) ? $error['error_code'] : 100),
+                        (isset($error['error_msg']) ? $error['error_msg'] : ''));
             }
         }
 
@@ -186,6 +187,18 @@ class actionApiMethod extends cmsAction {
                 }
 
             }
+        }
+
+        // если передали разбивку на страницы, формируем флаг наличия следующей страницы
+        if(!empty($this->method_action->result['paging'])){
+
+            $pages = ceil($this->method_action->result['count'] / $this->method_action->result['paging']['per_page']);
+            if($pages > $this->method_action->result['paging']['page']){
+                $this->method_action->result['paging']['has_next'] = true;
+            } else {
+                $this->method_action->result['paging']['has_next'] = false;
+            }
+
         }
 
         // фиксируем результат запроса

@@ -28,3 +28,5 @@ define('LANG_API_ERROR100', 'Один из необходимых парамет
 define('LANG_API_ERROR8', 'Неверный запрос');
 define('LANG_API_ERROR12', 'Невозможно скомпилировать код');
 define('LANG_API_ERROR13', 'Ошибка выполнения кода');
+define('LANG_API_ERROR320', 'Запись на модерации');
+define('LANG_API_ERROR321', 'Запись не опубликована');
