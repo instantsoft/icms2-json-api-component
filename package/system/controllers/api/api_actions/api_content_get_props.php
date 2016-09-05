@@ -29,6 +29,12 @@ class actionContentApiContentGetProps extends cmsAction {
                 array('digits')
             )
         ),
+        'is_in_filter' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
         'ids' => array(
             'default' => 0,
             'rules'   => array(
@@ -70,6 +76,10 @@ class actionContentApiContentGetProps extends cmsAction {
 
             $this->model->filterIn('p.id', $ids);
 
+        }
+
+        if($this->request->get('is_in_filter')){
+            $this->model->filterEqual('p.is_in_filter', 1);
         }
 
         $fields = $this->model->getContentProps($this->ctype['name'], $this->request->get('cat_id'));

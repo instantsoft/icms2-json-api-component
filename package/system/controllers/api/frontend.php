@@ -214,3 +214,30 @@ if (!function_exists('apache_request_headers')) {
         return $out;
     }
 }
+function api_image_src($images, $size_preset = false){
+
+    $config = cmsConfig::getInstance();
+
+    if (!is_array($images)){
+        $images = cmsModel::yamlToArray($images);
+    }
+
+    if (!$images){ return null; }
+
+    $result = array();
+
+    $keys = array_keys($images);
+    // значит массив изображений
+    if ($keys[0] === 0) {
+        foreach ($images as $image) {
+            $result[] = api_image_src($image);
+        }
+    } else {
+        foreach ($images as $preset => $path) {
+            $result[$preset] = $config->upload_host_abs . '/' . $path;
+        }
+    }
+
+    return $result;
+
+}

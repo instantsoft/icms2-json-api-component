@@ -23,6 +23,30 @@ class actionContentApiContentGetFields extends cmsAction {
      * @var array
      */
     public $request_params = array(
+        'only_required' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
+        'is_in_list' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
+        'is_in_item' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
+        'is_in_filter' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
         'ids' => array(
             'default' => 0,
             'rules'   => array(
@@ -79,7 +103,21 @@ class actionContentApiContentGetFields extends cmsAction {
 
         }
 
-        $fields = $this->model->getContentFields($this->ctype['name']);
+        if($this->request->get('is_in_list')){
+            $this->model->filterEqual('is_in_list', 1);
+        }
+        if($this->request->get('is_in_item')){
+            $this->model->filterEqual('is_in_item', 1);
+        }
+        if($this->request->get('is_in_filter')){
+            $this->model->filterEqual('is_in_filter', 1);
+        }
+
+        if($this->request->get('only_required')){
+            $fields = $this->model->getRequiredContentFields($this->ctype['name']);
+        } else {
+            $fields = $this->model->getContentFields($this->ctype['name']);
+        }
 
         $this->result['count'] = count($fields);
         $this->result['items'] = $fields;

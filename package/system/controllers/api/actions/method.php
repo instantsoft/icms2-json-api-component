@@ -188,6 +188,18 @@ class actionApiMethod extends cmsAction {
             }
         }
 
+        // если передали разбивку на страницы, формируем флаг наличия следующей страницы
+        if(!empty($this->method_action->result['paging'])){
+
+            $pages = ceil($this->method_action->result['count'] / $this->method_action->result['paging']['per_page']);
+            if($pages > $this->method_action->result['paging']['page']){
+                $this->method_action->result['paging']['has_next'] = true;
+            } else {
+                $this->method_action->result['paging']['has_next'] = false;
+            }
+
+        }
+
         // фиксируем результат запроса
         $this->setSuccess($this->method_action->result);
 
