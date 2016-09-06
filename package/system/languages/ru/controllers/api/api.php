@@ -30,3 +30,4 @@ define('LANG_API_ERROR12', 'Невозможно скомпилировать к
 define('LANG_API_ERROR13', 'Ошибка выполнения кода');
 define('LANG_API_ERROR320', 'Запись на модерации');
 define('LANG_API_ERROR321', 'Запись не опубликована');
+define('LANG_API_ERROR322', 'Тип контента не найден');

@@ -30,3 +30,4 @@ define('LANG_API_ERROR12', 'Unable to compile code');
 define('LANG_API_ERROR13', 'Runtime error occurred during code invocation');
 define('LANG_API_ERROR320', 'Item on moderation');
 define('LANG_API_ERROR321', 'Item is not published');
+define('LANG_API_ERROR322', 'Content type not found');
