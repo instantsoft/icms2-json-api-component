@@ -241,3 +241,39 @@ function api_image_src($images, $size_preset = false){
     return $result;
 
 }
+function form_to_params($form) {
+
+    $params = array();
+
+    $structure = $form->getStructure();
+
+    foreach($structure as $fieldset){
+
+        if (empty($fieldset['childs'])) { continue; }
+
+        $param = array(
+            'title'  => (!empty($fieldset['title']) ? $fieldset['title'] : null),
+            'fields' => array()
+        );
+
+        foreach($fieldset['childs'] as $field){
+
+            $param['fields'][] = array(
+                'title'    => $field->title,
+                'name'     => $field->getName(),
+                'rules'    => $field->getRules(),
+                'var_type' => $field->var_type,
+                'items'    => (method_exists($field, 'getListItems') ? $field->getListItems() : null),
+                'hint'     => (!empty($field->hint) ? $field->hint : null),
+                'default'  => (isset($field->default) ? $field->default : null),
+            );
+
+        }
+
+        $params[] = $param;
+
+    }
+
+    return $params;
+
+}
