@@ -146,6 +146,13 @@ class actionApiMethod extends cmsAction {
             );
         }
 
+        // проверяем sig, если включена проверка
+        if(!empty($this->method_action->check_sig)){
+            if(!check_sig($this->request->get('sig', ''))){
+                return $this->error(115);
+            }
+        }
+
         // валидация параметров запроса
         $params_error = $this->validateMethodParams();
         if($params_error !== false){
@@ -156,8 +163,11 @@ class actionApiMethod extends cmsAction {
         if(method_exists($this->method_action, 'validateApiRequest')){
             $error = call_user_func_array(array($this->method_action, 'validateApiRequest'), $this->method_params);
             if($error !== false){
-                return $this->error((isset($error['error_code']) ? $error['error_code'] : 100),
-                        (isset($error['error_msg']) ? $error['error_msg'] : ''));
+                return $this->error(
+                    (isset($error['error_code']) ? $error['error_code'] : 100),
+                    (isset($error['error_msg']) ? $error['error_msg'] : ''),
+                    (isset($error['request_params']) ? $error['request_params'] : array())
+                );
             }
         }
 

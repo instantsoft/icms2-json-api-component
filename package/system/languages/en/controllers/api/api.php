@@ -24,6 +24,7 @@ define('LANG_API_ERROR101', 'Invalid API KEY');
 define('LANG_API_ERROR2', 'Access key is disabled');
 define('LANG_API_ERROR23', 'This method was disabled ');
 define('LANG_API_ERROR15', 'Access denied');
+define('LANG_API_ERROR115', 'Sig parameter is not passed or is incorrect');
 define('LANG_API_ERROR100', 'One of the parameters specified was missing or invalid');
 define('LANG_API_ERROR8', 'Invalid request ');
 define('LANG_API_ERROR12', 'Unable to compile code');

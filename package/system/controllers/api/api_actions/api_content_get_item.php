@@ -192,6 +192,7 @@ class actionContentApiContentGetItem extends cmsAction {
 
         list($this->ctype, $this->item, $fields) = cmsEventsManager::hook('content_before_item', array($this->ctype, $this->item, $fields));
         list($this->ctype, $this->item, $fields) = cmsEventsManager::hook("content_{$this->ctype['name']}_before_item", array($this->ctype, $this->item, $fields));
+        list($this->ctype, $this->item, $fields) = cmsEventsManager::hook('api_content_before_item', array($this->ctype, $this->item, $fields));
 
         // парсим поля
         foreach($fields as $name => $field){

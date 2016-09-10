@@ -15,15 +15,6 @@ class actionAuthApiAuthSignupFields extends cmsAction {
      */
     public $result;
 
-    /**
-     * Возможные параметры запроса
-     * с правилами валидации
-     * Если запрос имеет параметры, необходимо описать их здесь
-     * Правила валидации параметров задаются по аналогии с полями форм
-     * @var array
-     */
-    public $request_params = array();
-
     public function validateApiRequest() {
 
         if (empty($this->options['is_reg_enabled'])){
@@ -113,7 +104,8 @@ class actionAuthApiAuthSignupFields extends cmsAction {
 
         }
 
-        $this->result = form_to_params($form);
+        $this->result['item'] = form_to_params($form);
+        $this->result['sig']  = get_sig();
 
     }
 

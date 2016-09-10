@@ -277,3 +277,10 @@ function form_to_params($form) {
     return $params;
 
 }
+function get_sig() {
+    $ip = cmsUser::getIp();
+    return md5($ip.md5(md5(cmsConfig::get('host')).sprintf('%u',ip2long($ip)).md5(cmsConfig::get('db_pass'))));
+}
+function check_sig($sig) {
+    return $sig === get_sig();
+}

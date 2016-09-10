@@ -24,6 +24,7 @@ define('LANG_API_ERROR101', 'Неверный ключ доступа');
 define('LANG_API_ERROR2', 'Ключ доступа выключен');
 define('LANG_API_ERROR23', 'Метод был выключен');
 define('LANG_API_ERROR15', 'Доступ запрещён');
+define('LANG_API_ERROR115', 'Параметр sig не передан или является некорректным');
 define('LANG_API_ERROR100', 'Один из необходимых параметров был не передан или неверен');
 define('LANG_API_ERROR8', 'Неверный запрос');
 define('LANG_API_ERROR12', 'Невозможно скомпилировать код');
