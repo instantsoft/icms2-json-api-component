@@ -29,6 +29,12 @@ class actionContentApiContentGet extends cmsAction {
                 array('digits')
             )
         ),
+        'is_not_paginated' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('digits')
+            )
+        ),
         'cat_id' => array(
             'default' => 1,
             'rules'   => array(
@@ -146,11 +152,13 @@ class actionContentApiContentGet extends cmsAction {
         $page      = $this->request->get('page');
         $hide_root = !empty($this->ctype['options']['is_empty_root']) && $this->cat['id'] == 1;
 
-        // разбивка на страницы
-        $this->result['paging'] = array(
-            'page'     => $page,
-            'per_page' => $perpage
-        );
+        // разбивка на страницы если нужна
+        if(!$this->request->get('is_not_paginated')){
+            $this->result['paging'] = array(
+                'page'     => $page,
+                'per_page' => $perpage
+            );
+        }
 
         // если записи в корне мы не показываем
         if($hide_root){ return; }
@@ -252,7 +260,11 @@ class actionContentApiContentGet extends cmsAction {
         }
 
         // Постраничный вывод
-        $this->model->limitPage($page, $perpage);
+        if($this->request->get('is_not_paginated')){
+            $this->model->limit(0);
+        } else {
+            $this->model->limitPage($page, $perpage);
+        }
 
 		list($this->ctype, $this->model) = cmsEventsManager::hook('content_list_filter', array($this->ctype, $this->model));
 		list($this->ctype, $this->model) = cmsEventsManager::hook("content_{$this->ctype['name']}_list_filter", array($this->ctype, $this->model));
