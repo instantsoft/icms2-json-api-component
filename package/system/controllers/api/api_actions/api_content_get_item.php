@@ -71,6 +71,13 @@ class actionContentApiContentGetItem extends cmsAction {
             }
         }
 
+        // Проверяем, что не удалено
+        if (!empty($this->item['is_deleted'])){
+            if (!$is_moderator){
+                return array('error_msg' => LANG_API_ERROR100);
+            }
+        }
+
         // Проверяем приватность
         if ($this->item['is_private'] == 1){ // доступ только друзьям
 

@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2016                              //
+//                             InstantMedia 2017                              //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -9,14 +9,20 @@
 
 class actionApiMethod extends cmsAction {
 
-    private $key = null;
-
     private $method_name       = null;
     private $method_params     = array();
     private $method_controller_name = null;
     private $method_action_name     = null;
 
+    /**
+     * Объект контроллера api метода
+     * @var object
+     */
     private $method_controller = null;
+    /**
+     * Объект класса api метода
+     * @var object
+     */
     private $method_action     = null;
 
     public function __construct($controller, $params=array()){
@@ -308,6 +314,16 @@ class actionApiMethod extends cmsAction {
 
         if(!$this->method_controller->isEnabled()){
             return $this->error(23);
+        }
+
+        $method_name = str_replace('.', '_', $this->method_name);
+
+        $is_view = !$this->key['methods_access']['allow'] || in_array($method_name, $this->key['methods_access']['allow']);
+        $is_hide = $this->key['methods_access']['disallow'] && in_array($method_name, $this->key['methods_access']['disallow']);
+
+        // првоеряем доступ к методу
+        if (!$is_view || $is_hide) {
+            return $this->error(24);
         }
 
         return true;

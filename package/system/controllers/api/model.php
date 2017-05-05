@@ -17,7 +17,11 @@ class modelApi extends cmsModel {
             $field = 'api_key';
         }
 
-		return $this->filterEqual($field, $id)->getItem('api_keys');
+		$key = $this->filterEqual($field, $id)->getItem('api_keys');
+
+        $key['methods_access'] = cmsModel::yamlToArray($key['methods_access']);
+
+        return $key;
 
     }
 

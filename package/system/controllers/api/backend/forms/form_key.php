@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2016                              //
+//                             InstantMedia 2017                              //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -10,6 +10,24 @@
 class formApiKey extends cmsForm {
 
     public function init() {
+
+        $generator = function($item){
+            static $items = null;
+            if($items === null){
+                $api_actions = cmsCore::getFilesList('system/controllers/api/api_actions/', 'api_*.php');
+                $actions = cmsCore::getFilesList('system/controllers/api/actions/', 'api_*.php');
+                $hooks = cmsCore::getFilesList('system/controllers/api/hooks/', 'api_*.php');
+                $files = array_unique(array_merge($hooks, $actions, $api_actions));
+                $items = array();
+                if ($files) {
+                    foreach ($files as $file_name) {
+                        $name = str_replace(array('api_', '.php'), '', $file_name);
+                        $items[$name] = $name;
+                    }
+                }
+            }
+            return $items;
+        };
 
         return array(
 
@@ -44,7 +62,20 @@ class formApiKey extends cmsForm {
 
                     new fieldText('ip_access', array(
                         'title' => LANG_API_ALLOW_IPS,
-                        'hint'  => LANG_CP_SETTINGS_ALLOW_IPS_HINT
+                        'hint'  => sprintf(LANG_CP_SETTINGS_ALLOW_IPS_HINT, cmsUser::getIp())
+                    )),
+
+                    new fieldListMultiple('methods_access:allow', array(
+                        'title'    => LANG_API_ALLOW_METHODS,
+                        'default'  => 0,
+                        'show_all' => true,
+                        'generator' => $generator
+                    )),
+
+                    new fieldListMultiple('methods_access:disallow', array(
+                        'title'    => LANG_API_DISALLOW_METHODS,
+                        'default'  => 0,
+                        'generator' => $generator
                     ))
 
                 )

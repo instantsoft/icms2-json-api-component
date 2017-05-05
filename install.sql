@@ -5,6 +5,7 @@ CREATE TABLE `{#}api_keys` (
   `api_key` varchar(32) DEFAULT NULL,
   `description` varchar(100) DEFAULT NULL,
   `ip_access` text,
+  `key_methods` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `api_key` (`api_key`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;

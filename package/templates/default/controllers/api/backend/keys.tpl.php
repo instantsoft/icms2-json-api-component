@@ -2,9 +2,6 @@
 $this->addBreadcrumb(LANG_API_KEYS);
 $this->setPageTitle(LANG_API_KEYS);
 
-$this->addJS('templates/default/js/jquery-ui.js');
-$this->addCSS('templates/default/css/jquery-ui.css');
-
 $this->addToolButton(array(
     'class' => 'add',
     'title' => LANG_ADD,

@@ -277,6 +277,8 @@ class actionContentApiContentGet extends cmsAction {
         list($this->ctype, $items) = cmsEventsManager::hook("content_{$this->ctype['name']}_before_list", array($this->ctype, $items));
         list($this->ctype, $items) = cmsEventsManager::hook('content_api_list', array($this->ctype, $items));
 
+        $result_items = array();
+
         if($items){
             foreach ($items as $key => $item) {
 
@@ -306,6 +308,9 @@ class actionContentApiContentGet extends cmsAction {
                     }
 
                 }
+
+                $result_items[] = $items[$key];
+
             }
         }
 
@@ -314,7 +319,7 @@ class actionContentApiContentGet extends cmsAction {
         }
 
         $this->result['count']    = $total;
-        $this->result['items']    = $items;
+        $this->result['items']    = $result_items;
         $this->result['additionally'] = array(
             'fields'       => $fields,
             'props'        => $props,
