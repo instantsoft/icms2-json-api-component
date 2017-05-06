@@ -22,6 +22,7 @@ class formApiKey extends cmsForm {
                 if ($files) {
                     foreach ($files as $file_name) {
                         $name = str_replace(array('api_', '.php'), '', $file_name);
+                        $name = substr_replace($name, '.', strpos($name, '_')).ltrim(strstr($name, '_'), '_');
                         $items[$name] = $name;
                     }
                 }

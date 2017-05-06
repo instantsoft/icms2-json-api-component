@@ -36,3 +36,4 @@ define('LANG_API_ERROR321', 'Запись не опубликована');
 define('LANG_API_ERROR322', 'Тип контента не найден');
 define('LANG_API_ERROR323', 'Регистрация запрещена');
 define('LANG_API_ERROR1110', 'Неправильный код');
+define('LANG_API_ERROR113', 'Неверный идентификатор пользователя');

@@ -36,3 +36,4 @@ define('LANG_API_ERROR321', 'Item is not published');
 define('LANG_API_ERROR322', 'Content type not found');
 define('LANG_API_ERROR323', 'Register is forbidden');
 define('LANG_API_ERROR1110', 'Incorrect code');
+define('LANG_API_ERROR113', 'Invalid user id ');
