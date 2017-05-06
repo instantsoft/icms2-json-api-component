@@ -21,6 +21,7 @@ define('LANG_API_EMPTY_CTYPE', 'Content type not set');
 
 define('LANG_API_ERROR1', 'Unknown error occurred');
 define('LANG_API_ERROR3', 'Unknown method passed ');
+define('LANG_API_ERROR5', 'User authorization failed');
 define('LANG_API_ERROR101', 'Invalid API KEY');
 define('LANG_API_ERROR2', 'Access key is disabled');
 define('LANG_API_ERROR23', 'This method was disabled ');

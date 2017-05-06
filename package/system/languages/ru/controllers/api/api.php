@@ -21,6 +21,7 @@ define('LANG_API_EMPTY_CTYPE', 'Не задан тип контента');
 
 define('LANG_API_ERROR1', 'Произошла неизвестная ошибка');
 define('LANG_API_ERROR3', 'Передан неизвестный метод');
+define('LANG_API_ERROR5', 'Авторизация пользователя не удалась');
 define('LANG_API_ERROR101', 'Неверный ключ доступа');
 define('LANG_API_ERROR2', 'Ключ доступа выключен');
 define('LANG_API_ERROR23', 'Метод был выключен');
