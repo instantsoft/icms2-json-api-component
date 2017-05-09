@@ -282,7 +282,7 @@ class actionContentApiContentGet extends cmsAction {
         if($items){
             foreach ($items as $key => $item) {
 
-                $is_private = $item['is_private'] && !$item['user']['is_friend'];
+                $is_private = $item['is_private'] == 1 && !$item['user']['is_friend'];
 
                 $item['ctype'] = $this->ctype;
 

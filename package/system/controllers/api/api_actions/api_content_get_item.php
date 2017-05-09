@@ -106,11 +106,12 @@ class actionContentApiContentGetItem extends cmsAction {
         }
 
         // Проверяем ограничения доступа из других контроллеров
-        if ($this->item['is_parent_hidden']){
+        if ($this->item['is_parent_hidden'] || $this->item['is_private']){
             $is_parent_viewable_result = cmsEventsManager::hook('content_view_hidden', array(
                 'viewable'     => true,
                 'item'         => $this->item,
-                'is_moderator' => $is_moderator
+                'is_moderator' => $is_moderator,
+                'ctype'        => $this->ctype
             ));
             if (!$is_parent_viewable_result['viewable']){
                 return array(
