@@ -252,7 +252,7 @@ class actionApiMethod extends cmsAction {
 
         $errors = array();
 
-        // фалидация аналогична валидации форм
+        // валидация аналогична валидации форм
         foreach ($this->method_action->request_params as $param_name => $rules) {
 
             $value = $this->request->get($param_name, null);

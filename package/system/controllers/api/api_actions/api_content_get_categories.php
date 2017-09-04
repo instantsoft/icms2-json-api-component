@@ -78,15 +78,21 @@ class actionContentApiContentGetCategories extends cmsAction {
             return;
         }
 
+        $categories = array();
+
         $cat_ids = $this->request->get('cat_ids');
         if($cat_ids){
 
             $cat_ids = explode(',', $cat_ids);
             $cat_ids = array_filter($cat_ids);
 
-            $this->model->filterIn('id', $cat_ids);
+            if($cat_ids){
 
-            $categories = $this->model->get($this->model->table_prefix.$ctype_name.'_cats');
+                $this->model->filterIn('id', $cat_ids);
+
+                $categories = $this->model->get($this->model->table_prefix.$ctype_name.'_cats');
+
+            }
 
         } else {
 

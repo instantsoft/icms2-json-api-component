@@ -64,6 +64,12 @@ class actionContentApiContentGet extends cmsAction {
             'rules'   => array(
                 array('digits')
             )
+        ),
+        'ids' => array(
+            'default' => 0,
+            'rules'   => array(
+                array('regexp', '/^([0-9,]+)$/i')
+            )
         )
     );
 
@@ -109,7 +115,7 @@ class actionContentApiContentGet extends cmsAction {
         $user_id = $this->request->get('user_id');
         if($user_id){
 
-            $this->user = $this->model->$this->getItemById('{users}', $user_id);
+            $this->user = $this->model->getItemById('{users}', $user_id);
             if (!$this->user){
                 return array('error_msg' => LANG_API_ERROR100);
             }
@@ -131,7 +137,7 @@ class actionContentApiContentGet extends cmsAction {
         $group_id = $this->request->get('group_id');
         if($group_id){
 
-            $this->group = $this->model->$this->getItemById('content_folders', $group_id);
+            $this->group = $this->model->getItemById('groups', $group_id);
             if (!$this->group){
                 return array('error_msg' => LANG_API_ERROR100);
             }
@@ -165,6 +171,19 @@ class actionContentApiContentGet extends cmsAction {
 
         // категории выключены, а передали категорию
         if (empty($this->ctype['is_cats']) && $this->cat['id'] > 1) { return; }
+
+        // если нужен список по id
+        $ids = $this->request->get('ids');
+        if($ids){
+
+            $ids = explode(',', $ids);
+            $ids = array_filter($ids);
+
+            if($ids){
+                $this->model->filterIn('id', $ids);
+            }
+
+        }
 
         // если передан набор, фильтруем по нему
         if($this->dataset){
