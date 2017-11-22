@@ -25,6 +25,27 @@ class api extends cmsFrontend {
 
     }
 
+    /**
+     * Метод для совместимости, выше icms 2.8.2 он не нужен
+     * @param string $name
+     * @return mixed
+     */
+    public function __get($name) {
+
+        if(strpos($name, 'controller_') === 0){
+            $this->{$name} = cmsCore::getController(str_replace('controller_', '', $name), $this->request);
+            return $this->{$name};
+        }
+
+        if(strpos($name, 'model_') === 0){
+            $this->{$name} = cmsCore::getModel(str_replace('model_', '', $name));
+            return $this->{$name};
+        }
+
+        return parent::__get($name);
+
+    }
+
     public function loadApiKey() {
 
         if($this->key !== null){ return $this; }
@@ -59,6 +80,10 @@ class api extends cmsFrontend {
 
         return true;
 
+    }
+
+    public function actionIndex() {
+        return cmsCore::errorForbidden();
     }
 
     /**
@@ -243,7 +268,28 @@ function api_image_src($images, $size_preset = false){
 }
 function form_to_params($form) {
 
-    $params = array();
+    $params = array(array(
+        'title'  => 'csrf_token',
+        'fields' => array(
+            array(
+                'title'    => null,
+                'data'     => array (
+                    'type' => 'hidden'
+                ),
+                'type'     => 'string',
+                'name'     => 'csrf_token',
+                'rules'    =>  array (
+                    array ('required'),
+                    array ('min_length', 32),
+                    array ('max_length', 32)
+                ),
+                'var_type' => 'string',
+                'items'    => null,
+                'placeholder' => null,
+                'default'  => cmsForm::getCSRFToken()
+            )
+        )
+    ));
 
     $structure = $form->getStructure();
 
@@ -260,12 +306,13 @@ function form_to_params($form) {
 
             $param['fields'][] = array(
                 'title'    => $field->title,
+                'type'     => $field->class,
                 'name'     => $field->getName(),
                 'rules'    => $field->getRules(),
                 'var_type' => $field->var_type,
                 'items'    => (method_exists($field, 'getListItems') ? $field->getListItems() : null),
                 'hint'     => (!empty($field->hint) ? $field->hint : null),
-                'default'  => (isset($field->default) ? $field->default : null),
+                'default'  => (isset($field->default) ? $field->default : null)
             );
 
         }

@@ -14,12 +14,6 @@ class actionAuthApiAuthConfirm extends cmsAction {
      * @var array
      */
     public $result;
-    /**
-     * Флаг, обязующий проверять параметр sig запроса
-     * sig привязан к домену сайта и к ip адресу посетителя
-     * @var boolean
-     */
-    public $check_sig = true;
 
     /**
      * Возможные параметры запроса
@@ -30,21 +24,15 @@ class actionAuthApiAuthConfirm extends cmsAction {
      */
     public $request_params = array(
         'code' => array(
+            'default' => '',
             'rules'   => array(
                 array('required'),
                 array('regexp', '/^[0-9a-f]{32}$/i')
             )
-        ),
-        'user_id' => array(
-            'default' => 0,
-            'rules'   => array(
-                array('required'),
-                array('digits')
-            )
         )
     );
 
-    private $users_model, $user;
+    private $user;
 
     public function validateApiRequest() {
 
@@ -61,10 +49,8 @@ class actionAuthApiAuthConfirm extends cmsAction {
 
         }
 
-        $this->users_model = cmsCore::getModel('users');
-
-        $this->user = $this->users_model->getUserByPassToken($this->request->get('code'));
-        if (!$this->user || $this->user['id'] != $this->request->get('user_id')) {
+        $this->user = $this->model_users->getUserByPassToken($this->request->get('code', ''));
+        if (!$this->user) {
             return array('error_code' => 1110);
         }
 
@@ -74,12 +60,50 @@ class actionAuthApiAuthConfirm extends cmsAction {
 
     public function run(){
 
-        $this->users_model->unlockUser($this->user['id']);
-        $this->users_model->clearUserPassToken($this->user['id']);
+        $this->model_users->unlockUser($this->user['id']);
+        $this->model_users->clearUserPassToken($this->user['id']);
 
 		cmsEventsManager::hook('user_registered', $this->user);
 
+        $auth_user = array();
+
+        if ($this->options['reg_auto_auth']){
+
+            $this->user = $this->model_users->getUser($this->user['id']);
+
+            $this->user['avatar'] = cmsModel::yamlToArray($this->user['avatar']);
+            if ($this->user['avatar']){
+                foreach($this->user['avatar'] as $size => $path){
+                    $this->user['avatar'][$size] = $this->cms_config->upload_host_abs.'/'.$path;
+                }
+            }
+
+            $this->user = cmsEventsManager::hook('user_login', $this->user);
+
+            cmsUser::setUserSession($this->user);
+
+            $update_data = array(
+                'ip' => cmsUser::getIp()
+            );
+
+            $this->model->update('{users}', $this->user['id'], $update_data, true);
+
+            cmsEventsManager::hook('auth_login', $this->user['id']);
+
+            unset($this->user['password'], $this->user['password_salt'], $this->user['pass_token'], $this->user['date_token'], $this->user['ip'], $this->user['is_admin']);
+
+            $auth_user = array(
+                'session_name' => session_name(),
+                'session_id'   => session_id(),
+                'expires_in'   => ini_get('session.gc_maxlifetime'),
+                'user_id'      => $this->user['id'],
+                'user_info'    => $this->user
+            );
+
+        }
+
         $this->result = array(
+            'auth_user'    => $auth_user,
             'success'      => true,
             'success_text' => LANG_REG_SUCCESS_VERIFIED
         );

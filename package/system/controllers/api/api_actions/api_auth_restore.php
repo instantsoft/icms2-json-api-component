@@ -14,12 +14,6 @@ class actionAuthApiAuthRestore extends cmsAction {
      * @var array
      */
     public $result;
-    /**
-     * Флаг, обязующий проверять параметр sig запроса
-     * sig привязан к домену сайта и к ip адресу посетителя
-     * @var boolean
-     */
-    public $check_sig = true;
 
     /**
      * Возможные параметры запроса
@@ -38,15 +32,13 @@ class actionAuthApiAuthRestore extends cmsAction {
         ),
     );
 
-    private $users_model, $user;
+    private $user;
 
     public function validateApiRequest() {
 
         $email = $this->request->get('email', '');
 
-        $this->users_model = cmsCore::getModel('users');
-
-        $this->user = $this->users_model->getUserByEmail($email);
+        $this->user = $this->model_users->getUserByEmail($email);
 
         if (!$this->user) {
             return array('error_code' => 113);
@@ -78,7 +70,7 @@ class actionAuthApiAuthRestore extends cmsAction {
 
         $pass_token = string_random(32, $this->user['email']);
 
-        $this->users_model->updateUserPassToken($this->user['id'], $pass_token);
+        $this->model_users->updateUserPassToken($this->user['id'], $pass_token);
 
         $messenger = cmsCore::getController('messages');
 
@@ -88,6 +80,7 @@ class actionAuthApiAuthRestore extends cmsAction {
         $messenger->sendEmail($to, $letter, array(
             'nickname'    => $this->user['nickname'],
             'page_url'    => href_to_abs('auth', 'reset', $pass_token),
+            'pass_token'  => $pass_token,
             'valid_until' => html_date(date('d.m.Y H:i', time() + (24 * 3600)), true),
         ));
 

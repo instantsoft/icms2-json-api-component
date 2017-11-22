@@ -152,12 +152,37 @@ class actionApiMethod extends cmsAction {
             );
         }
 
+        // если передан ip адрес, считаем его адресом посетителя
+        // для различных проверок компонентов
+        // т.к. движок определяет ip адрес места запроса
+        if($this->request->has('ip')){
+
+            $ip = $this->request->get('ip', '');
+
+            if (!$ip || filter_var($ip, FILTER_VALIDATE_IP) !== $ip) {
+                return $this->error(777);
+            }
+
+            cmsUser::setIp($ip);
+
+        }
+
         // проверяем sig, если включена проверка
         if(!empty($this->method_action->check_sig)){
             if(!check_sig($this->request->get('sig', ''))){
                 return $this->error(115);
             }
         }
+
+        // проверяем авторизацию, если метод её требует
+        if(!empty($this->method_action->auth_required)){
+            if(!$this->cms_user->is_logged){
+                return $this->error(71);
+            }
+        }
+
+        // ставим ключ API в свойство
+        $this->method_action->key = $this->key;
 
         // валидация параметров запроса
         $params_error = $this->validateMethodParams();

@@ -30,7 +30,7 @@ class actionAuthApiAuthSignup extends cmsAction {
      */
     public $request_params = array();
 
-    private $users_model, $user;
+    private $user;
 
     public function validateApiRequest() {
 
@@ -49,9 +49,6 @@ class actionAuthApiAuthSignup extends cmsAction {
 
         $form = $this->getForm('registration');
         if(!$form){ return array('error_code' => 1); }
-
-        // загружаем модель пользователя
-        $this->users_model = cmsCore::getModel('users');
 
         //
         // Добавляем поле для кода приглашения,
@@ -76,7 +73,7 @@ class actionAuthApiAuthSignup extends cmsAction {
         // Добавляем поле выбора группы,
         // при наличии публичных групп
         //
-        $public_groups = $this->users_model->getPublicGroups();
+        $public_groups = $this->model_users->getPublicGroups();
 
         if ($public_groups) {
 
@@ -193,6 +190,18 @@ class actionAuthApiAuthSignup extends cmsAction {
 
         }
 
+        list($errors, $user) = cmsEventsManager::hook('registration_validation', array(false, $user));
+
+        if($errors){
+
+            return array(
+                'error_code'     => 100,
+                'error_msg'      => '',
+                'request_params' => $errors
+            );
+
+        }
+
         unset($user['inv']);
 
         //
@@ -207,7 +216,9 @@ class actionAuthApiAuthSignup extends cmsAction {
             ));
         }
 
-        $result = $this->users_model->addUser($user);
+        $user['nickname'] = strstr($user['email'], '@', true);
+
+        $result = $this->model_users->addUser($user);
 
         if (!$result['success']){
 

@@ -52,7 +52,7 @@ class actionAuthApiAuthLogin extends cmsAction {
         'user_info' => array(   // название ключа в $this->result
             'type'   => 'item', // list или item
             'unsets' => array(  // массив названий ключей для удаления
-                'password', 'password_salt', 'pass_token', 'date_token'
+                'password', 'password_salt', 'pass_token', 'date_token', 'ip', 'is_admin'
             )
         )
     );
@@ -61,7 +61,17 @@ class actionAuthApiAuthLogin extends cmsAction {
 
     public function validateApiRequest() {
 
-        $logged_id = cmsUser::login($this->request->get('email', ''), $this->request->get('password', ''), true);
+        // если авторизован, проверки не выполняем
+        if($this->cms_user->is_logged){
+
+            $this->user = $this->model_users->getUser($this->cms_user->id);
+
+            return false;
+
+        }
+
+
+        $logged_id = cmsUser::login($this->request->get('email', ''), $this->request->get('password', ''));
 
         if(!$logged_id){
             return array(
@@ -69,7 +79,7 @@ class actionAuthApiAuthLogin extends cmsAction {
             );
         }
 
-        $this->user = cmsCore::getModel('users')->getUser($logged_id);
+        $this->user = $this->model_users->getUser($logged_id);
 
         if ($this->user['is_admin']) {
 
@@ -99,6 +109,7 @@ class actionAuthApiAuthLogin extends cmsAction {
         $this->result = array(
             'session_name' => session_name(),
             'session_id'   => session_id(),
+            'expires_in'   => ini_get('session.gc_maxlifetime'),
             'user_id'      => $this->user['id'],
             'user_info'    => $this->user
         );
