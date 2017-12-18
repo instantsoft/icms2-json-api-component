@@ -9,8 +9,7 @@
 
 class actionApiMethod extends cmsAction {
 
-    private $method_name       = null;
-    private $method_params     = array();
+    private $method_params          = array();
     private $method_controller_name = null;
     private $method_action_name     = null;
 
@@ -183,6 +182,7 @@ class actionApiMethod extends cmsAction {
 
         // ставим ключ API в свойство
         $this->method_action->key = $this->key;
+        $this->method_action->method_name = $this->method_name;
 
         // валидация параметров запроса
         $params_error = $this->validateMethodParams();
@@ -288,6 +288,8 @@ class actionApiMethod extends cmsAction {
 
                 $this->request->set($param_name, $value);
 
+            } elseif(!is_null($value) && isset($rules['default'])){
+                $value = $this->request->get($param_name, $rules['default']);
             }
 
             foreach ($rules['rules'] as $rule) {

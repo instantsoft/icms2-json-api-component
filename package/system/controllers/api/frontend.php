@@ -15,6 +15,7 @@ class api extends cmsFrontend {
     private $output_error = array();
 
     public $key = null;
+    public $method_name = null;
 
     public function __construct($request){
 
@@ -125,7 +126,7 @@ class api extends cmsFrontend {
 
             if(!$method_result){ return $this->error(13); }
 
-            $response[$method_param['method']] = $this->output_success['response'];
+            $response[!empty($method_param['key']) ? $method_param['key'] : $method_param['method']] = $this->output_success['response'];
 
         }
 
@@ -268,7 +269,7 @@ function api_image_src($images, $size_preset = false){
 }
 function form_to_params($form) {
 
-    $params = array(array(
+    $params = array('csrf_token' => array(
         'title'  => 'csrf_token',
         'fields' => array(
             array(
@@ -293,7 +294,7 @@ function form_to_params($form) {
 
     $structure = $form->getStructure();
 
-    foreach($structure as $fieldset){
+    foreach($structure as $key => $fieldset){
 
         if (empty($fieldset['childs'])) { continue; }
 
@@ -304,7 +305,7 @@ function form_to_params($form) {
 
         foreach($fieldset['childs'] as $field){
 
-            $param['fields'][] = array(
+            $param['fields'][$field->getName()] = array(
                 'title'    => $field->title,
                 'type'     => $field->class,
                 'name'     => $field->getName(),
@@ -312,12 +313,13 @@ function form_to_params($form) {
                 'var_type' => $field->var_type,
                 'items'    => (method_exists($field, 'getListItems') ? $field->getListItems() : null),
                 'hint'     => (!empty($field->hint) ? $field->hint : null),
+                'units'    => (!empty($field->units) ? $field->units : null),
                 'default'  => (isset($field->default) ? $field->default : null)
             );
 
         }
 
-        $params[] = $param;
+        $params[$key] = $param;
 
     }
 
