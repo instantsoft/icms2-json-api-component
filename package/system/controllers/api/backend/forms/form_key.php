@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2017                              //
+//                                 InstantMedia                               //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -66,14 +66,14 @@ class formApiKey extends cmsForm {
                         'hint'  => sprintf(LANG_CP_SETTINGS_ALLOW_IPS_HINT, cmsUser::getIp())
                     )),
 
-                    new fieldListMultiple('methods_access:allow', array(
+                    new fieldListMultiple('key_methods:allow', array(
                         'title'    => LANG_API_ALLOW_METHODS,
                         'default'  => 0,
                         'show_all' => true,
                         'generator' => $generator
                     )),
 
-                    new fieldListMultiple('methods_access:disallow', array(
+                    new fieldListMultiple('key_methods:disallow', array(
                         'title'    => LANG_API_DISALLOW_METHODS,
                         'default'  => 0,
                         'generator' => $generator

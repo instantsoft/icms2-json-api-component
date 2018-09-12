@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2017                              //
+//                                 InstantMedia                               //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -105,7 +105,7 @@ class actionApiMethod extends cmsAction {
 
         // проверяем сначала экшен
         // Важно! Болокируйте экшен от прямого выполнения свойством lock_explicit_call
-        // http://docs.instantcms.ru/dev/controllers/actions#действия-во-внешних-файлах
+        // https://docs.instantcms.ru/dev/controllers/actions#действия-во-внешних-файлах
 
         $api_dir_action_file = $this->root_path.'api_actions/'.$this->method_controller->current_action.'.php';
         $action_file = $this->method_controller->root_path.'actions/'.$this->method_controller->current_action.'.php';
@@ -116,6 +116,10 @@ class actionApiMethod extends cmsAction {
             $class_name = 'action'.string_to_camel('_', $this->method_controller_name).string_to_camel('_', $this->method_controller->current_action);
 
             include_once $action_file;
+
+            if(!class_exists($class_name, false)){
+                cmsCore::error(sprintf(ERR_CLASS_NOT_DEFINED, str_replace(PATH, '', $action_file), $class_name));
+            }
 
             $this->method_action = new $class_name($this->method_controller);
 
@@ -128,8 +132,12 @@ class actionApiMethod extends cmsAction {
 
             if (is_readable($hook_file)){
 
-                if (!class_exists($class_name)){
+                if (!class_exists($class_name, false)){
                     include_once $hook_file;
+                }
+
+                if(!class_exists($class_name, false)){
+                    cmsCore::error(sprintf(ERR_CLASS_NOT_DEFINED, str_replace(PATH, '', $hook_file), $class_name));
                 }
 
                 $this->method_action = new $class_name($this->method_controller);
@@ -162,7 +170,10 @@ class actionApiMethod extends cmsAction {
                 return $this->error(777);
             }
 
-            cmsUser::setIp($ip);
+            // совместимость
+            if(method_exists('cmsUser', 'setIp')){
+                cmsUser::setIp($ip);
+            }
 
         }
 
@@ -178,6 +189,18 @@ class actionApiMethod extends cmsAction {
             if(!$this->cms_user->is_logged){
                 return $this->error(71);
             }
+        }
+
+        // проверяем админ доступ, если метод этого требует
+        if(!empty($this->method_action->admin_required)){
+            if(!$this->cms_user->is_logged){
+                return $this->error(71);
+            }
+            if(!$this->cms_user->is_admin){
+                return $this->error(710);
+            }
+            // грузим язык админки
+            cmsCore::loadControllerLanguage('admin');
         }
 
         // ставим ключ API в свойство
@@ -289,29 +312,37 @@ class actionApiMethod extends cmsAction {
                 $this->request->set($param_name, $value);
 
             } elseif(!is_null($value) && isset($rules['default'])){
+
                 $value = $this->request->get($param_name, $rules['default']);
+
+                // для применения типизации переменной
+                $this->request->set($param_name, $value);
+
             }
 
-            foreach ($rules['rules'] as $rule) {
+            if(!empty($rules['rules'])){
+                foreach ($rules['rules'] as $rule) {
 
-                if (!$rule) { continue; }
+                    if (!$rule) { continue; }
 
-                $validate_function = "validate_{$rule[0]}";
+                    $validate_function = "validate_{$rule[0]}";
 
-                $rule[] = $value;
+                    $rule[] = $value;
 
-                unset($rule[0]);
+                    unset($rule[0]);
 
-                $result = call_user_func_array(array($this, $validate_function), $rule);
+                    $result = call_user_func_array(array($this, $validate_function), $rule);
 
-                // если получилось false, то дальше не проверяем, т.к.
-                // ошибка уже найдена
-                if ($result !== true) {
-                    $errors[$param_name] = $result;
-                    break;
+                    // если получилось false, то дальше не проверяем, т.к.
+                    // ошибка уже найдена
+                    if ($result !== true) {
+                        $errors[$param_name] = $result;
+                        break;
+                    }
+
                 }
-
             }
+
         }
 
         if (!sizeof($errors)) { return false; }
@@ -343,8 +374,8 @@ class actionApiMethod extends cmsAction {
             return $this->error(23);
         }
 
-        $is_view = !$this->key['methods_access']['allow'] || in_array($this->method_name, $this->key['methods_access']['allow']);
-        $is_hide = $this->key['methods_access']['disallow'] && in_array($this->method_name, $this->key['methods_access']['disallow']);
+        $is_view = !$this->key['key_methods']['allow'] || in_array($this->method_name, $this->key['key_methods']['allow']);
+        $is_hide = $this->key['key_methods']['disallow'] && in_array($this->method_name, $this->key['key_methods']['disallow']);
 
         // проверяем доступ к методу
         if (!$is_view || $is_hide) {

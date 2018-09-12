@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2016                              //
+//                                 InstantMedia                               //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -20,7 +20,7 @@ class modelApi extends cmsModel {
 		$key = $this->filterEqual($field, $id)->getItem('api_keys');
 
         if($key){
-            $key['methods_access'] = cmsModel::yamlToArray($key['methods_access']);
+            $key['key_methods'] = cmsModel::yamlToArray($key['key_methods']);
         }
 
         return $key;

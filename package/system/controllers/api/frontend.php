@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2017                              //
+//                                 InstantMedia                               //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -18,6 +18,8 @@ class api extends cmsFrontend {
     public $method_name = null;
 
     public function __construct($request){
+
+        cmsCore::startTimer();
 
         parent::__construct($request);
 
@@ -97,6 +99,24 @@ class api extends cmsFrontend {
 
         $this->loadApiKey();
 
+        // если передан ip адрес, считаем его адресом посетителя
+        // для различных проверок компонентов
+        // т.к. движок определяет ip адрес места запроса
+        if($this->request->has('ip')){
+
+            $ip = $this->request->get('ip', '');
+
+            if (!$ip || filter_var($ip, FILTER_VALIDATE_IP) !== $ip) {
+                return $this->error(777);
+            }
+
+            // совместимость
+            if(method_exists('cmsUser', 'setIp')){
+                cmsUser::setIp($ip);
+            }
+
+        }
+
         if(!$this->checkRequest()){
             return false;
         }
@@ -143,6 +163,13 @@ class api extends cmsFrontend {
 
         parent::after($action_name);
 
+        if(!$this->cms_user->is_logged && $this->output_success){
+            $this->output_success['session'] = array(
+                'session_name' => session_name(),
+                'session_id'   => session_id()
+            );
+        }
+
         $this->processCallback('after', array());
 
         return true;
@@ -154,9 +181,21 @@ class api extends cmsFrontend {
      * @param array $api_request_result
      */
     public function setSuccess($api_request_result) {
-        $this->output_success = array(
+
+        $success = array(
             'response' => $api_request_result
         );
+
+        if ($this->cms_config->debug && cmsUser::isAdmin()){
+            $success['debug'] = array(
+                'time' => cmsDebugging::getTime('cms', 4),
+                'mem'  => round(memory_get_usage(true)/1024/1024, 2),
+                'data' => cmsDebugging::getPointsData()
+            );
+        }
+
+        $this->output_success = $success;
+
     }
 
     /**
@@ -280,9 +319,7 @@ function form_to_params($form) {
                 'type'     => 'string',
                 'name'     => 'csrf_token',
                 'rules'    =>  array (
-                    array ('required'),
-                    array ('min_length', 32),
-                    array ('max_length', 32)
+                    array ('required')
                 ),
                 'var_type' => 'string',
                 'items'    => null,
@@ -300,6 +337,7 @@ function form_to_params($form) {
 
         $param = array(
             'title'  => (!empty($fieldset['title']) ? $fieldset['title'] : null),
+            'hint'   => (!empty($fieldset['hint']) ? $fieldset['hint'] : null),
             'fields' => array()
         );
 

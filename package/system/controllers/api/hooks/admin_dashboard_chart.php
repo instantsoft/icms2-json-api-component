@@ -1,4 +1,11 @@
 <?php
+/******************************************************************************/
+//                                                                            //
+//                                 InstantMedia                               //
+//	 		      http://instantmedia.ru/, support@instantmedia.ru            //
+//                               written by Fuze                              //
+//                                                                            //
+/******************************************************************************/
 
 class onApiAdminDashboardChart extends cmsAction {
 

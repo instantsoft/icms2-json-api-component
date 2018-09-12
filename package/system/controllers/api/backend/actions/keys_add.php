@@ -1,7 +1,7 @@
 <?php
 /******************************************************************************/
 //                                                                            //
-//                             InstantMedia 2016                              //
+//                                 InstantMedia                               //
 //	 		      http://instantmedia.ru/, support@instantmedia.ru            //
 //                               written by Fuze                              //
 //                                                                            //
@@ -9,7 +9,7 @@
 
 class actionApiKeysAdd extends cmsAction {
 
-    public function run($id=null){
+    public function run($id = null) {
 
         $form = $this->getForm('key');
 

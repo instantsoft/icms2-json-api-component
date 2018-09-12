@@ -21,6 +21,8 @@ class actionUsersApiUsersRemoveFromGroups extends cmsAction {
      */
     public $check_sig = true;
 
+    public $admin_required = true;
+
     /**
      * Возможные параметры запроса
      * с правилами валидации

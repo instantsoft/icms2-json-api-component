@@ -33,6 +33,8 @@ class actionUsersApiUsersAdd extends cmsAction {
      */
     public $check_sig = false;
 
+    public $admin_required = true;
+
     /**
      * Возможные параметры запроса
      * с правилами валидации
