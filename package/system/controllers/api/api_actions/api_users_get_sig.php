@@ -10,7 +10,7 @@ class actionUsersApiUsersGetSig extends cmsAction {
 
         $this->result = array(
             'sig' => get_sig(),
-            'csrf_token' => cmsForm::generateCSRFToken()
+            'csrf_token' => cmsForm::getCSRFToken()
         );
 
     }

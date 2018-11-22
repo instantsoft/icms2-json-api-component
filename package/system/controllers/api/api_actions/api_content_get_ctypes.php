@@ -47,7 +47,7 @@ class actionContentApiContentGetCtypes extends cmsAction {
 
     }
 
-    public function run($ctype_name){
+    public function run(){
 
         if(empty($this->ctype)){
 
