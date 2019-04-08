@@ -52,7 +52,7 @@ class actionAuthApiAuthLogin extends cmsAction {
         'user_info' => array(   // название ключа в $this->result
             'type'   => 'item', // list или item
             'unsets' => array(  // массив названий ключей для удаления
-                'password', 'password_salt', 'pass_token', 'date_token', 'ip', 'is_admin'
+                'password_hash', 'password', 'password_salt', 'pass_token', 'date_token', 'ip', 'is_admin'
             )
         )
     );
@@ -81,7 +81,7 @@ class actionAuthApiAuthLogin extends cmsAction {
 
         $this->user = $this->model_users->getUser($logged_id);
 
-        if ($this->user['is_admin']) {
+        if (empty($this->api_options['allow_admin_login']) && $this->user['is_admin']) {
 
             cmsUser::logout();
 

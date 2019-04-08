@@ -28,27 +28,6 @@ class api extends cmsFrontend {
 
     }
 
-    /**
-     * Метод для совместимости, выше icms 2.8.2 он не нужен
-     * @param string $name
-     * @return mixed
-     */
-    public function __get($name) {
-
-        if(strpos($name, 'controller_') === 0){
-            $this->{$name} = cmsCore::getController(str_replace('controller_', '', $name), $this->request);
-            return $this->{$name};
-        }
-
-        if(strpos($name, 'model_') === 0){
-            $this->{$name} = cmsCore::getModel(str_replace('model_', '', $name));
-            return $this->{$name};
-        }
-
-        return parent::__get($name);
-
-    }
-
     public function loadApiKey() {
 
         if($this->key !== null){ return $this; }
@@ -366,7 +345,7 @@ function form_to_params($form) {
 }
 function get_sig() {
     $ip = cmsUser::getIp();
-    return md5($ip.md5(md5(cmsConfig::get('host')).sprintf('%u',ip2long($ip)).md5(cmsConfig::get('db_pass'))));
+    return md5($ip.md5(md5(cmsConfig::get('host')).md5(cmsConfig::get('db_base')).sprintf('%u',ip2long($ip))));
 }
 function check_sig($sig) {
     return $sig === get_sig();

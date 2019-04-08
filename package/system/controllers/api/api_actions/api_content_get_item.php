@@ -174,30 +174,6 @@ class actionContentApiContentGetItem extends cmsAction {
             }
         }
 
-        // Комментарии
-        if ($this->ctype['is_comments'] &&
-                $this->ctype['is_approved'] &&
-                $this->ctype['is_comments_on'] &&
-                $this->isControllerEnabled('comments')){
-
-            $this->item['is_comments_on'] = true;
-
-        } else {
-            $this->item['is_comments_on'] = false;
-        }
-
-        // Рейтинг. Если выключен, убираем ячейку из ответа
-        if (!$this->ctype['is_rating'] && !$this->isControllerEnabled('rating')){
-            unset($this->item['rating']);
-        }
-
-        // Получаем теги
-        if ($this->ctype['is_tags']){
-            $this->item['tags'] = cmsCore::getModel('tags')->getTagsForTarget($this->name, $this->ctype['name'], $this->item['id']);
-        } else {
-            unset($this->item['tags']);
-        }
-
         list($this->ctype, $this->item, $fields) = cmsEventsManager::hook('content_before_item', array($this->ctype, $this->item, $fields));
         list($this->ctype, $this->item, $fields) = cmsEventsManager::hook("content_{$this->ctype['name']}_before_item", array($this->ctype, $this->item, $fields));
         list($this->ctype, $this->item, $fields) = cmsEventsManager::hook('api_content_before_item', array($this->ctype, $this->item, $fields));
@@ -209,8 +185,24 @@ class actionContentApiContentGetItem extends cmsAction {
 
             if (empty($this->item[$name]) || $field['is_system']) { continue; }
 
+            // проверяем что группа пользователя имеет доступ к чтению этого поля
             if ($field['groups_read'] && !$this->cms_user->isInGroups($field['groups_read'])) {
+                // если группа пользователя не имеет доступ к чтению этого поля,
+                // проверяем на доступ к нему для авторов
+                if (!empty($this->item['user_id']) && !empty($field['options']['author_access'])){
+
+                    if (!in_array('is_read', $field['options']['author_access'])){
+                        unset($this->item[$name]); continue;
+                    }
+
+                    if ($this->item['user_id'] == $this->cms_user->id){
+                        unset($this->item[$name]); continue;
+                    }
+
+                }
+
                 unset($this->item[$name]); continue;
+
             }
 
             if (in_array($field['type'], array('images','image'))){

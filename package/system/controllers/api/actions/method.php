@@ -206,6 +206,8 @@ class actionApiMethod extends cmsAction {
         // ставим ключ API в свойство
         $this->method_action->key = $this->key;
         $this->method_action->method_name = $this->method_name;
+        // опции api в свойство
+        $this->method_action->api_options = $this->options;
 
         // валидация параметров запроса
         $params_error = $this->validateMethodParams();

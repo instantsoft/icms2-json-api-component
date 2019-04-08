@@ -82,15 +82,11 @@ class actionAuthApiAuthConfirm extends cmsAction {
 
             cmsUser::setUserSession($this->user);
 
-            $update_data = array(
-                'ip' => cmsUser::getIp()
-            );
-
-            $this->model->update('{users}', $this->user['id'], $update_data, true);
+            $this->model_users->updateUserIp($this->user['id']);
 
             cmsEventsManager::hook('auth_login', $this->user['id']);
 
-            unset($this->user['password'], $this->user['password_salt'], $this->user['pass_token'], $this->user['date_token'], $this->user['ip'], $this->user['is_admin']);
+            unset($this->user['password_hash'], $this->user['password'], $this->user['password_salt'], $this->user['pass_token'], $this->user['date_token'], $this->user['ip'], $this->user['is_admin']);
 
             $auth_user = array(
                 'session_name' => session_name(),

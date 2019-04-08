@@ -23,6 +23,8 @@ class actionUsersApiUsersUpdatePassword extends cmsAction {
 
     public function validateApiRequest() {
 
+        cmsCore::loadControllerLanguage('auth');
+
         $this->user = $this->model->getUser($this->cms_user->id);
 
         $form = $this->getForm('password');
@@ -38,10 +40,23 @@ class actionUsersApiUsersUpdatePassword extends cmsAction {
 
         if (!$errors){
 
-            $password_hash = md5(md5($data['password']) . $this->cms_user->password_salt);
+            // совместимость
+            if(method_exists($this->model, 'getUserByAuth')){
 
-            if ($password_hash != $this->cms_user->password){
-                $errors = array('password' => LANG_OLD_PASS_INCORRECT);
+                $user = $this->model->getUserByAuth($this->user['email'], $data['password']);
+
+                if (!$user){
+                    $errors = array('password' => LANG_OLD_PASS_INCORRECT);
+                }
+
+            } else {
+
+                $password_hash = md5(md5($data['password']) . $this->cms_user->password_salt);
+
+                if ($password_hash != $this->cms_user->password){
+                    $errors = array('password' => LANG_OLD_PASS_INCORRECT);
+                }
+
             }
 
         }

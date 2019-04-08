@@ -199,9 +199,8 @@ class actionContentApiContentAddItem extends cmsAction {
 
         }
 
-        if (!$errors){
-            list($this->item, $errors) = cmsEventsManager::hook('content_validate', array($this->item, $errors));
-        }
+        list($this->item, $errors) = cmsEventsManager::hook('content_validate', array($this->item, $errors));
+        list($this->item, $errors, $this->ctype, $this->fields) = cmsEventsManager::hook("content_{$ctype['name']}_validate", array($this->item, $errors, $this->ctype, $this->fields), null, $this->request);
 
         if($errors){
 
@@ -287,26 +286,6 @@ class actionContentApiContentAddItem extends cmsAction {
 
         $this->item = cmsEventsManager::hook('content_before_add', $this->item);
         $this->item = cmsEventsManager::hook("content_{$this->ctype['name']}_before_add", $this->item);
-
-        // SEO параметры
-        $item_seo = $this->prepareItemSeo($this->item, $this->fields, $this->ctype);
-        if(empty($this->ctype['options']['is_manual_title']) && !empty($this->ctype['options']['seo_title_pattern'])){
-            $this->item['seo_title'] = string_replace_keys_values_extended($this->ctype['options']['seo_title_pattern'], $item_seo);
-        }
-        if ($this->ctype['is_auto_keys']){
-            if(!empty($this->ctype['options']['seo_keys_pattern'])){
-                $this->item['seo_keys'] = string_replace_keys_values_extended($this->ctype['options']['seo_keys_pattern'], $item_seo);
-            } else {
-                $this->item['seo_keys'] = string_get_meta_keywords($this->item['content']);
-            }
-        }
-        if ($this->ctype['is_auto_desc']){
-            if(!empty($this->ctype['options']['seo_desc_pattern'])){
-                $this->item['seo_desc'] = string_get_meta_description(string_replace_keys_values_extended($this->ctype['options']['seo_desc_pattern'], $item_seo));
-            } else {
-                $this->item['seo_desc'] = string_get_meta_description($this->item['content']);
-            }
-        }
 
         $this->item = $this->model->addContentItem($this->ctype, $this->item, $this->fields);
 

@@ -2,6 +2,7 @@
 define('LANG_API_CONTROLLER', 'InstantCMS JSON API');
 define('LANG_API_LOG_ERROR', 'Логировать запросы с ошибками');
 define('LANG_API_LOG_SUCCESS', 'Логировать успешные запросы');
+define('LANG_API_ALLOW_ADMIN_LOGIN', 'Разрешить авторизацию администраторам');
 define('LANG_HELP_URL_COM_API', 'http://docs.instantcms.ru/manual/components/api');
 define('LANG_API_KEYS', 'Ключи доступа');
 define('LANG_API_KEY', 'Ключ доступа');

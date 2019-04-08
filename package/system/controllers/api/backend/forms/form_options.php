@@ -24,6 +24,10 @@ class formApiOptions extends cmsForm {
 
                     new fieldCheckbox('log_success', array(
                         'title' => LANG_API_LOG_SUCCESS
+                    )),
+
+                    new fieldCheckbox('allow_admin_login', array(
+                        'title' => LANG_API_ALLOW_ADMIN_LOGIN
                     ))
 
                 )
