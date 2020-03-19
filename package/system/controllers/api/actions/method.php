@@ -376,8 +376,10 @@ class actionApiMethod extends cmsAction {
             return $this->error(23);
         }
 
-        $is_view = !$this->key['key_methods']['allow'] || in_array($this->method_name, $this->key['key_methods']['allow']);
-        $is_hide = $this->key['key_methods']['disallow'] && in_array($this->method_name, $this->key['key_methods']['disallow']);
+        $check_method_name = $this->method_controller_name.'.'.$this->method_action_name;
+
+        $is_view = !$this->key['key_methods']['allow'] || in_array($check_method_name, $this->key['key_methods']['allow']);
+        $is_hide = $this->key['key_methods']['disallow'] && in_array($check_method_name, $this->key['key_methods']['disallow']);
 
         // проверяем доступ к методу
         if (!$is_view || $is_hide) {

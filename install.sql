@@ -17,5 +17,6 @@ CREATE TABLE `{#}api_logs` (
   `error` tinyint(1) unsigned DEFAULT NULL,
   `date_pub` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `request_time` float unsigned DEFAULT NULL,
-  KEY `key_id` (`key_id`)
+  KEY `key_id` (`key_id`),
+  KEY `method` (`error`,`method`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
