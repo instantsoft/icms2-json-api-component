@@ -324,11 +324,12 @@ function form_to_params($form) {
 
             $param['fields'][$field->getName()] = array(
                 'title'    => $field->title,
-                'type'     => $field->class,
+                'type'     => isset($field->field_type) ? $field->field_type : $field->class, // совместимость
                 'name'     => $field->getName(),
                 'rules'    => $field->getRules(),
                 'var_type' => $field->var_type,
                 'items'    => (method_exists($field, 'getListItems') ? $field->getListItems() : null),
+                'attributes' => (!empty($field->attributes) ? $field->attributes : null),
                 'hint'     => (!empty($field->hint) ? $field->hint : null),
                 'units'    => (!empty($field->units) ? $field->units : null),
                 'default'  => (isset($field->default) ? $field->default : null)
