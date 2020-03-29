@@ -177,6 +177,13 @@ class actionApiMethod extends cmsAction {
 
         }
 
+        // проверяем csrf, если включена проверка
+        if(!empty($this->method_action->check_csrf)){
+            if (!cmsForm::validateCSRFToken($this->request->get('csrf_token', ''))){
+                return $this->error(0, LANG_API_ERROR_CSRF_TOKEN);
+            }
+        }
+
         // проверяем sig, если включена проверка
         if(!empty($this->method_action->check_sig)){
             if(!check_sig($this->request->get('sig', ''))){

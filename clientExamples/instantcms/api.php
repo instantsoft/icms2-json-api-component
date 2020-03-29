@@ -191,4 +191,31 @@ final class cmsApi {
         return self::getMethod('execute', ['code' => json_encode($params)], $cacheable, $is_upload, self::getApiExecutePoint());
     }
 
+    public static function arrayToForm($data) {
+
+        $form = new cmsForm();
+
+        $form->addFieldset('', 'basic');
+
+        foreach ($data as $fsets) {
+            foreach ($fsets['fields'] as $field) {
+
+                if($field['name'] == 'csrf_token'){
+                    cmsUser::sessionSet('csrf_token', $field['default']);
+                    continue;
+                }
+
+                $field_class = 'field' . string_to_camel('_',  $field['field_type'] );
+
+                $form->addField('basic',
+                    new $field_class($field['name'], $field)
+                );
+
+            }
+        }
+
+        return $form;
+
+    }
+
 }

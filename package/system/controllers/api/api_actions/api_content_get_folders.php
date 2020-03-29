@@ -30,7 +30,7 @@ class actionContentApiContentGetFolders extends cmsAction {
             )
         ),
         'ids' => array(
-            'default' => 0,
+            'default' => '',
             'rules'   => array(
                 array('regexp', '/^([0-9,]+)$/i')
             )

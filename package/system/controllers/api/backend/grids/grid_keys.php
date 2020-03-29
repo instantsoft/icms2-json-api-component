@@ -46,12 +46,12 @@ function grid_keys($controller){
     $actions = array(
         array(
             'title' => LANG_EDIT,
-            'class' => 'edit tooltip',
+            'class' => 'edit',
             'href'  => href_to($controller->root_url, 'keys_edit', array('{id}'))
         ),
         array(
             'title'   => LANG_DELETE,
-            'class'   => 'delete tooltip',
+            'class'   => 'delete',
             'href'    => href_to($controller->root_url, 'keys_delete', array('{id}')),
             'confirm' => LANG_API_DELETE_CONFIRM
         )

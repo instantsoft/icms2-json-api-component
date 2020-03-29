@@ -197,10 +197,22 @@ class actionAuthApiAuthLogin extends cmsAction {
 
     public function run(){
 
+        $is_first_auth = null;
+
+        if(!empty($this->user['id'])){
+            if(cmsUser::getUPS('first_auth', $this->user['id'])){
+                cmsUser::deleteUPS('first_auth', $this->user['id']);
+                $is_first_auth = true;
+            } else {
+                $is_first_auth = false;
+            }
+        }
+
         $this->result = array(
             'wait_2fa'     => $this->wait_2fa,
             '2fa_type'     => $this->twofa_type,
             '2fa_params'   => $this->twofa_params,
+            'is_first_auth' => $is_first_auth,
             'remember_token' => (isset(cmsUser::$auth_token) ? cmsUser::$auth_token : false),
             'session_name' => session_name(),
             'session_id'   => session_id(),
@@ -212,3 +224,4 @@ class actionAuthApiAuthLogin extends cmsAction {
     }
 
 }
+

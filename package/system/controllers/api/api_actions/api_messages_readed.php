@@ -12,7 +12,7 @@ class actionMessagesApiMessagesReaded extends cmsAction {
 
     public $request_params = array(
         'ids' => array(
-            'default' => 0,
+            'default' => '',
             'rules'   => array(
                 array('required'),
                 array('regexp', '/^([0-9]{1}[0-9,]*)$/')

@@ -24,7 +24,7 @@ class actionWidgetsApiWidgetsGetWidgets extends cmsAction {
      */
     public $request_params = array(
         'pages_ids' => array(
-            'default' => 0,
+            'default' => '',
             'rules'   => array(
                 array('regexp', '/^([0-9,]+)$/i')
             )
