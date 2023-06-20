@@ -27,80 +27,86 @@ class actionImagesApiImagesUpload extends cmsAction {
 
     public function validateApiRequest() {
 
-        $result = $this->cms_uploader->setAllowedMime($this->allowed_mime)->
-                upload($this->request->get('name'), $this->getAllowedExtensions());
+        $name = $this->request->get('name');
 
+        // устанавливаем разрешенные типы изображений
+        $this->cms_uploader->setAllowedMime($this->allowed_mime);
+
+        cmsEventsManager::hook('images_before_upload', array($name, $this->cms_uploader), null, $this->request);
+
+        // Непосредственно загружаем
+        $result = $this->cms_uploader->upload($name);
+
+        // Начинаем работу с изображением
         if ($result['success']){
-            if (!$this->cms_uploader->isImage($result['path'])){
 
-                files_delete_file($result['path'], 2);
-
-                return array(
-                    'error_msg' => LANG_UPLOAD_ERR_MIME
-                );
-
+            try {
+                $image = new cmsImages($result['path']);
+            } catch (Exception $exc) {
+                $result['success'] = false;
+                $result['error']   = LANG_UPLOAD_ERR_MIME;
             }
+
         }
 
+        // Не получилось, удаляем исходник, показываем ошибку
         if (!$result['success']){
-
             if(!empty($result['path'])){
                 files_delete_file($result['path'], 2);
             }
-
             return array(
                 'error_msg' => $result['error']
             );
-
         }
 
+        // Переданные пресеты
 		$sizes = $this->request->get('presets');
-        $file_name = $this->request->get('file_name', '');
 
-		if ($sizes && preg_match('/([a-z0-9_,]+)$/i', $sizes)){
+		if (!empty($sizes)){
 			$sizes = explode(',', $sizes);
 		} else {
             $sizes = array_keys((array)$this->model->getPresetsList());
             $sizes[] = 'original';
         }
 
-        $result['paths'] = array();
+        // Результирующий массив изображений после конвертации
+        $result['paths'] = [];
 
+        // Дополняем оригиналом, если нужно
 		if (in_array('original', $sizes, true)){
-			$result['paths']['original'] = $result['url'];
+			$result['paths']['original'] = array(
+				'path' => $result['url'],
+                'url'  => $this->cms_config->upload_host_abs . '/' . $result['url']
+            );
 		}
 
+        // Получаем пресеты
 		$presets = $this->model->orderByList(array(
-            array('by' => 'is_square', 'to' => 'asc'),
-            array('by' => 'width', 'to' => 'desc')
+            ['by' => 'is_square', 'to' => 'asc'],
+            ['by' => 'width', 'to' => 'desc']
         ))->getPresets();
 
+        list($result, $presets, $sizes) = cmsEventsManager::hook('images_after_upload', array($result, $presets, $sizes), null, $this->request);
+
+        // Создаём изображения по пресетам
 		foreach($presets as $p){
 
 			if (!in_array($p['name'], $sizes, true)){
 				continue;
 			}
 
-            if($file_name){
-                $this->cms_uploader->setFileName($file_name.' '.$p['name']);
-            }
+            $resized_path = $image->resizeByPreset($p);
 
-			$path = $this->cms_uploader->resizeImage($result['path'], array(
-				'width'     => $p['width'],
-                'height'    => $p['height'],
-                'is_square' => $p['is_square'],
-                'quality'   => (($p['is_watermark'] && $p['wm_image']) ? 100 : $p['quality']) // потом уже при наложении ватермарка будет правильное качество
-            ));
+            if (!$resized_path) { continue; }
 
-			if (!$path) { continue; }
-
-			if ($p['is_watermark'] && $p['wm_image']){
-				img_add_watermark($path, $p['wm_image']['original'], $p['wm_origin'], $p['wm_margin'], $p['quality']);
-			}
-
-			$result['paths'][$p['name']] = $path;
+            $result['paths'][$p['name']] = [
+				'path' => $resized_path,
+                'url'  => $this->cms_config->upload_host_abs . '/' . $resized_path
+            ];
 
 		}
+
+        list($result, $presets, $sizes) = cmsEventsManager::hook('images_after_resize', array($result, $presets, $sizes), null, $this->request);
 
 		if (!in_array('original', $sizes, true)){
 			files_delete_file($result['path'], 2);
@@ -109,11 +115,9 @@ class actionImagesApiImagesUpload extends cmsAction {
         unset($result['path']);
 
         if(!$result['paths']){
-
             return array(
                 'error_msg' => LANG_UPLOAD_ERR_NO_FILE
             );
-
         }
 
         $this->result['items'] = $result['paths'];

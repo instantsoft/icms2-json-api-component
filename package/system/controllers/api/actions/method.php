@@ -2,14 +2,14 @@
 /******************************************************************************/
 //                                                                            //
 //                                 InstantMedia                               //
-//	 		      http://instantmedia.ru/, support@instantmedia.ru            //
-//                               written by Fuze                              //
+//	 		                  http://instantmedia.ru/                         //
+//                                written by Fuze                             //
 //                                                                            //
 /******************************************************************************/
 
 class actionApiMethod extends cmsAction {
 
-    private $method_params          = array();
+    private $method_params          = [];
     private $method_controller_name = null;
     private $method_action_name     = null;
 
@@ -18,20 +18,18 @@ class actionApiMethod extends cmsAction {
      * @var object
      */
     private $method_controller = null;
+
     /**
      * Объект класса api метода
      * @var object
      */
-    private $method_action     = null;
+    private $method_action = null;
 
-    public function __construct($controller, $params=array()){
+    public function __construct($controller, $params = []) {
 
         parent::__construct($controller, $params);
 
         $this->loadApiKey();
-
-        // для метода after ставим коллбэк, нам не нужен вывод на экран шаблона
-        $this->setCallback('after', array(array($controller, 'renderJSON')));
 
     }
 
@@ -44,7 +42,10 @@ class actionApiMethod extends cmsAction {
     private function initMethod($method_name) {
 
         $this->method_name = $method_name;
-        if(empty($this->method_name)){ return $this; }
+
+        if (!$this->method_name) {
+            return $this;
+        }
 
         $segments = explode('.', $method_name);
 
@@ -53,7 +54,7 @@ class actionApiMethod extends cmsAction {
 
             $this->method_controller_name = trim($segments[0]);
 
-            if ($this->method_controller_name && !preg_match('/^[a-z]{1}[a-z0-9_]*$/', $this->method_controller_name)){
+            if ($this->method_controller_name && !preg_match('/^[a-z]{1}[a-z0-9_]*$/', $this->method_controller_name)) {
                 $this->method_controller_name = null;
             }
 
@@ -61,32 +62,29 @@ class actionApiMethod extends cmsAction {
                 $this->method_controller_name = null;
             }
 
-            if($this->method_controller_name){
+            if ($this->method_controller_name) {
                 $this->method_controller = cmsCore::getController($this->method_controller_name, $this->request);
             }
-
         }
         // действие
         if (isset($segments[1])) {
 
             $this->method_action_name = trim($segments[1]);
 
-            if ($this->method_action_name && !preg_match('/^[a-z]{1}[a-z0-9_]*$/', $this->method_action_name)){
+            if ($this->method_action_name && !preg_match('/^[a-z]{1}[a-z0-9_]*$/', $this->method_action_name)) {
                 $this->method_action_name = null;
             }
 
-            if($this->method_action_name && $this->method_controller !== null){
-                $this->method_controller->current_action = 'api_'.$this->method_controller_name.'_'.$this->method_action_name;
+            if ($this->method_action_name && $this->method_controller !== null) {
+                $this->method_controller->current_action = 'api_' . $this->method_controller_name . '_' . $this->method_action_name;
             }
-
         }
         // Параметры действия
-        if (count($segments) > 2){
+        if (count($segments) > 2) {
             $this->method_params = array_slice($segments, 2);
         }
 
         return $this;
-
     }
 
     /**
@@ -279,7 +277,6 @@ class actionApiMethod extends cmsAction {
 
         // действия после успешного запроса
         return $this->afterRequest();
-
     }
 
     /**
@@ -289,25 +286,25 @@ class actionApiMethod extends cmsAction {
     private function afterRequest() {
 
         // записываем в лог, если включено
-        if(!empty($this->options['log_success'])){
-            $this->model->log(array(
-                'request_time' => number_format(cmsCore::getTime(), 4),
-                'method' => $this->method_name,
-                'key_id' => $this->key['id']
-            ));
+        if (!empty($this->options['log_success'])) {
+
+            $this->model->log([
+                'request_time' => number_format((microtime(true) - $this->start_time), 4),
+                'method'       => $this->method_name,
+                'key_id'       => $this->key['id']
+            ]);
         }
 
         return true;
-
     }
 
     private function validateMethodParams() {
 
-        if(empty($this->method_action->request_params)){
+        if (empty($this->method_action->request_params)) {
             return false;
         }
 
-        $errors = array();
+        $errors = [];
 
         // валидация аналогична валидации форм
         foreach ($this->method_action->request_params as $param_name => $rules) {
@@ -320,19 +317,20 @@ class actionApiMethod extends cmsAction {
 
                 $this->request->set($param_name, $value);
 
-            } elseif(!is_null($value) && isset($rules['default'])){
+            } elseif (!is_null($value) && isset($rules['default'])) {
 
                 $value = $this->request->get($param_name, $rules['default']);
 
                 // для применения типизации переменной
                 $this->request->set($param_name, $value);
-
             }
 
-            if(!empty($rules['rules'])){
+            if (!empty($rules['rules'])) {
                 foreach ($rules['rules'] as $rule) {
 
-                    if (!$rule) { continue; }
+                    if (!$rule) {
+                        continue;
+                    }
 
                     $validate_function = "validate_{$rule[0]}";
 
@@ -340,7 +338,7 @@ class actionApiMethod extends cmsAction {
 
                     unset($rule[0]);
 
-                    $result = call_user_func_array(array($this, $validate_function), $rule);
+                    $result = call_user_func_array([$this, $validate_function], $rule);
 
                     // если получилось false, то дальше не проверяем, т.к.
                     // ошибка уже найдена
@@ -348,16 +346,15 @@ class actionApiMethod extends cmsAction {
                         $errors[$param_name] = $result;
                         break;
                     }
-
                 }
             }
-
         }
 
-        if (!sizeof($errors)) { return false; }
+        if (!sizeof($errors)) {
+            return false;
+        }
 
         return $errors;
-
     }
 
     /**
@@ -367,23 +364,27 @@ class actionApiMethod extends cmsAction {
     public function checkRequest() {
 
         $parent_succes = parent::checkRequest();
-        if(!$parent_succes){ return false; }
 
-        if(empty($this->method_name) ||
+        if (!$parent_succes) {
+            return false;
+        }
+
+        if (empty($this->method_name) ||
                 empty($this->method_controller_name) ||
-                $this->method_controller === null){
+                $this->method_controller === null) {
+
             return $this->error(3);
         }
 
-        if(empty($this->method_action_name)){
+        if (empty($this->method_action_name)) {
             return $this->error(8);
         }
 
-        if(!$this->method_controller->isEnabled()){
+        if (!$this->method_controller->isEnabled()) {
             return $this->error(23);
         }
 
-        $check_method_name = $this->method_controller_name.'.'.$this->method_action_name;
+        $check_method_name = $this->method_controller_name . '.' . $this->method_action_name;
 
         $is_view = !$this->key['key_methods']['allow'] || in_array($check_method_name, $this->key['key_methods']['allow']);
         $is_hide = $this->key['key_methods']['disallow'] && in_array($check_method_name, $this->key['key_methods']['disallow']);
@@ -394,7 +395,6 @@ class actionApiMethod extends cmsAction {
         }
 
         return true;
-
     }
 
 }

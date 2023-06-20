@@ -154,7 +154,7 @@ class actionContentApiContentGet extends cmsAction {
         if (empty($this->ctype['options']['list_on'])) { return; }
 
         // параметры
-        $perpage   = (empty($this->ctype['options']['limit']) ? content::perpage : $this->ctype['options']['limit']);
+        $perpage   = (empty($this->ctype['options']['limit']) ? 10 : $this->ctype['options']['limit']);
         $page      = $this->request->get('page');
         $hide_root = !empty($this->ctype['options']['is_empty_root']) && $this->cat['id'] == 1;
 

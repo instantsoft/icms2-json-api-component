@@ -2,8 +2,8 @@
 /******************************************************************************/
 //                                                                            //
 //                                 InstantMedia                               //
-//	 		      http://instantmedia.ru/, support@instantmedia.ru            //
-//                               written by Fuze                              //
+//	 		                  http://instantmedia.ru/                         //
+//                                written by Fuze                             //
 //                                                                            //
 /******************************************************************************/
 

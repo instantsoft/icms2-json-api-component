@@ -86,24 +86,27 @@ final class cmsApi {
             $api_point = self::getApiPoint();
         }
 
-        $cache_file = cmsConfig::get('cache_path') . 'api/' . md5($name . serialize($params) . cmsCore::getLanguageName()) . '.dat';
+        if ($cacheable) {
 
-        if ($cacheable && is_readable($cache_file)) {
+            $cache_file = cmsConfig::get('cache_path') . 'api/' . md5($name . serialize($params) . cmsCore::getLanguageName()) . '.dat';
 
-            $time_diff = (time() - filemtime($cache_file));
+            if (is_readable($cache_file)) {
 
-            if ($time_diff < self::cache_time) {
+                $time_diff = (time() - filemtime($cache_file));
 
-                $result = include $cache_file;
+                if ($time_diff < self::cache_time) {
 
-                if ($result) {
-                    return $result;
+                    $result = include $cache_file;
+
+                    if ($result) {
+                        return $result;
+                    } else {
+                        unlink($cache_file);
+                    }
+
                 } else {
                     unlink($cache_file);
                 }
-
-            } else {
-                unlink($cache_file);
             }
         }
 
@@ -123,9 +126,7 @@ final class cmsApi {
 
         } elseif (cmsUser::isLogged()) {
 
-            $user = cmsUser::getInstance();
-
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Cookie: ' . $user->api_session_name . '=' . $user->api_session_id]);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Cookie: ' . cmsUser::sessionGet('user_session:session_name') . '=' . cmsUser::sessionGet('user_session:session_id')]);
 
         } elseif (cmsUser::isSessionSet('guest_session:session_id')) {
 
